@@ -1,11 +1,17 @@
 module Main where
 
 import Prelude
-import Math (sqrt)
-import Control.Monad.Eff
-import Control.Monad.Eff.Console
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (CONSOLE, logShow)
 
-diagonal w h = sqrt (w * w + h * h)
+import Data.List
+
+import Data.Routine
+
+myRoutines :: List Routine
+myRoutines =
+    Routine { title: "coffee", period: 3, start: "heute", code: "AABBCC" }
+    : singleton (Routine { title: "certs", period: 3, start: "heute", code: "AABBCC" })
 
 main :: forall e. Eff (console :: CONSOLE | e) Unit
-main = logShow $ diagonal 3.0 4.0
+main = logShow $ "hello world"
