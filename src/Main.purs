@@ -27,10 +27,10 @@ import React.DOM.Props as P
 import ReactDOM (render)
 
 import Data.Routine (Errors, Routine(..), validateRoutine)
-import Components (formField)
+import Components (routineForm)
 
 routine1 :: Routine
-routine1 = Routine { title: "coffee", period: 3, start: "heute", code: "AABBCC" }
+routine1 = Routine { title: "coffee", period: "3", start: "heute", code: "AABBCC" }
 
 newtype AppState = AppState
   { routine :: Routine
@@ -49,8 +49,6 @@ valueOf e = runExcept do
   value <- index target "value"
   readString value
 
-{-- type Update = String -> Routine --}
-
 updateAppState :: forall props eff
    . ReactThis props AppState
   -> (String -> Routine)
@@ -59,7 +57,6 @@ updateAppState :: forall props eff
 updateAppState ctx update e =
   for_ (valueOf e) \s -> do
     let newRoutine = update s
-    {-- let newRoutine = update --}
 
     log "Running validators"
     case validateRoutine newRoutine of
@@ -80,21 +77,16 @@ routineList = createClass $ spec initialState \ctx -> do
 
       updateTitle t = Routine $ routine { title = t }
       updatePeriod p = Routine $ routine { period = p }
+      updateStart s = Routine $ routine { start = s }
 
   pure $
     D.div [ P.className "container" ]
           [ D.div [ P.className "row" ]
                   (renderValidationErrors errors)
-          , D.div [ P.className "row" ]
-                  [ D.form [ P.className "form-horizontal" ] $
-                           [ D.h3' [ D.text "Basic Information" ]
-
-                           , formField "Title" "title" routine.title (updateAppState ctx updateTitle)
-                           {-- , formField "Period"  "days until repetition" (show routine.period) (updateAppState ctx updatePeriod) --}
-
-                           , D.h3' [ D.text "Address" ]
-                           ]
-                  ]
+          , routineForm routine
+              (updateAppState ctx updateTitle)
+              (updateAppState ctx updatePeriod)
+              (updateAppState ctx updateStart)
           ]
 
 main :: forall e. Eff (console :: CONSOLE, dom:: DOM | e) Unit

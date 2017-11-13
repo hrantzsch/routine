@@ -5,7 +5,7 @@ import Data.Either (Either( .. ))
 
 type Errors = Array String
 
-type Days = Int
+type Days = String
 type Date = String
 type Code = String
 
