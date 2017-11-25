@@ -26,16 +26,18 @@ import React.DOM.Props as P
 import ReactDOM (render)
 
 routine1 :: Routine
-routine1 = Routine { title: "coffee", period: "3", start: "heute", code: "AABBCC" }
+routine1 = Routine { title: "Kaffee trinken", period: "3", start: "heute", code: "AABBCC" }
+routine2 :: Routine
+routine2 = Routine { title: "Pflanzen gießen", period: "2", start: "gestern", code: "AABBCC" }
 
 newtype AppState = AppState
-  { routine :: Routine
+  { routines :: Array Routine
   , errors :: Errors
   }
 
 initialState :: AppState
 initialState = AppState
-  { routine: routine1
+  { routines: [ routine1, routine2 ]
   , errors: []
   }
 
@@ -56,12 +58,12 @@ updateAppState ctx update e =
 
     log "Running validators"
     case validateRoutine newRoutine of
-      Left errors -> writeState ctx (AppState { routine: newRoutine, errors: errors })
-      Right _ -> writeState ctx (AppState { routine: newRoutine, errors: [] })
+      Left errors -> writeState ctx (AppState { routines: [newRoutine], errors: errors })
+      Right _ -> writeState ctx (AppState { routines: [newRoutine], errors: [] })
 
 routineList :: forall props. ReactClass props
 routineList = createClass $ spec initialState \ctx -> do
-  AppState { routine: Routine routine@{ }, errors } <- readState ctx
+  AppState { routines, errors } <- readState ctx
 
   let renderValidationError err = D.li' [ D.text err ]
 
@@ -71,12 +73,12 @@ routineList = createClass $ spec initialState \ctx -> do
                 [ D.ul' (map renderValidationError xs) ]
         ]
 
-      updateTitle t = Routine $ routine { title = t }
-      updatePeriod p = Routine $ routine { period = p }
-      updateStart s = Routine $ routine { start = s }
+      {-- updateTitle t = Routine $ routine { title = t } --}
+      {-- updatePeriod p = Routine $ routine { period = p } --}
+      {-- updateStart s = Routine $ routine { start = s } --}
 
   pure $
-      routineTable routine
+      routineTable routines
           {-- [ D.div [ P.className "row" ] --}
           {--         (renderValidationErrors errors) --}
           {-- , routineForm routine --}

@@ -7,6 +7,8 @@ import React (Event, ReactElement, ReactProps, ReactRefs, ReactState, Read, Writ
 import React.DOM as D
 import React.DOM.Props as P
 
+import Data.Routine (Routine(..))
+
 formField :: forall props eff
     . String
    -> String
@@ -32,34 +34,20 @@ formField name hint value update =
                   ]
           ]
 
-routineTable routine =
+routineTable routines =
     D.div [ P.className "container" ]
         [ D.table [ P.className "table table-sm" ]
-            [ D.thead' [ D.tr'
-                [ D.th' [ D.text "title" ]
-                , D.th' [ D.text "period" ]
-                , D.th' [ D.text "start" ]
-                , D.th' [ D.text "code" ]
-                ]
-            ]
-            , D.tbody'
-                [ D.tr'
-                    [ D.td' [ D.text routine.title ]
-                    , D.td' [ D.text routine.period ]
-                    , D.td' [ D.text routine.start ]
-                    , D.td' [ D.text routine.code ]
-                    ]
-                ]
-            , D.tbody'
-                [ D.tr'
-                    [ D.td' [ D.text routine.title ]
-                    , D.td' [ D.text routine.period ]
-                    , D.td' [ D.text routine.start ]
-                    , D.td' [ D.text routine.code ]
-                    ]
-                ]
+            [ D.thead' [ D.tr' [ D.th' [ D.text "title" ]
+                               , D.th' [ D.text "period" ]
+                               , D.th' [ D.text "start" ]
+                               , D.th' [ D.text "code" ] ] ]
+            , D.tbody' $ map renderRow routines
             ]
         ]
+    where renderRow (Routine r) = D.tr' [ D.td' [ D.text r.title ]
+                                        , D.td' [ D.text r.period ]
+                                        , D.td' [ D.text r.start ]
+                                        , D.td' [ D.text r.code ] ]
 
 routineForm routine onTitleChanged onPeriodChanged onStartChanged =
     D.div [ P.className "row" ]
