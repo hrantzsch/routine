@@ -2,10 +2,16 @@ module Main where
 
 import Prelude
 
+import Components (routineForm)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Except (runExcept)
-{-- import Data.Array ((..), length, modifyAt, zipWith) --}
+import DOM (DOM)
+import DOM.HTML (window)
+import DOM.HTML.Types (htmlDocumentToDocument)
+import DOM.HTML.Window (document)
+import DOM.Node.NonElementParentNode (getElementById)
+import DOM.Node.Types (ElementId(..), documentToNonElementParentNode)
 import Data.Either (Either(..))
 import Data.Foldable (for_)
 import Data.Foreign (ForeignError, readString, toForeign)
@@ -13,21 +19,12 @@ import Data.Foreign.Index (index)
 import Data.Int (fromString)
 import Data.List.NonEmpty (NonEmptyList)
 import Data.Maybe (fromJust, fromMaybe)
-import DOM (DOM())
-import DOM.HTML (window)
-import DOM.HTML.Types (htmlDocumentToDocument)
-import DOM.HTML.Window (document)
-import DOM.Node.NonElementParentNode (getElementById)
-import DOM.Node.Types (ElementId(..), documentToNonElementParentNode)
+import Data.Routine (Errors, Routine(..), validateRoutine)
 import Partial.Unsafe (unsafePartial)
-import React (ReactClass, ReadWrite, ReactState, Event, ReactThis,
-              createFactory, readState, spec, createClass, writeState)
+import React (ReactClass, ReadWrite, ReactState, Event, ReactThis, createFactory, readState, spec, createClass, writeState)
 import React.DOM as D
 import React.DOM.Props as P
 import ReactDOM (render)
-
-import Data.Routine (Errors, Routine(..), validateRoutine)
-import Components (routineForm)
 
 routine1 :: Routine
 routine1 = Routine { title: "coffee", period: "3", start: "heute", code: "AABBCC" }
