@@ -23,7 +23,7 @@ import React.DOM as D
 import React.DOM.Props as P
 import ReactDOM (render)
 
-import Components (routineForm, routineTable, renderValidationErrors)
+import Components (renderRoutineList, renderValidationErrors)
 import Data.Routine (Errors, Routine(..), routine, validateRoutine)
 
 routine1 :: Routine
@@ -70,23 +70,12 @@ updateAppState ctx update e =
 
 routineList :: forall props. ReactClass props
 routineList = createClass $ spec initialState \ctx -> do
-    AppState { routines: routines, newRoutine: Routine newRoutine, errors } <- readState ctx
-
-    let updateTitle t = Routine $ newRoutine { title = t }
-        updatePeriod p = Routine $ newRoutine { period = p }
-        updateStart s = Routine $ newRoutine { start = s }
+    AppState { routines: routines, newRoutine: newRoutine, errors } <- readState ctx
 
     pure $
         D.div [ P.className "column" ]
           [ renderValidationErrors errors
-          , routineForm newRoutine
-              (updateAppState ctx updateTitle)
-              (updateAppState ctx updatePeriod)
-              (updateAppState ctx updateStart)
-              {-- (\_ -> do readState ctx >>= updateErrors >>> writeState ctx) --}
-              {-- (\_ -> do readState ctx >>= updateErrors >>> writeState ctx) --}
-              {-- (\_ -> do readState ctx >>= updateErrors >>> writeState ctx) --}
-          , routineTable routines
+          , renderRoutineList routines newRoutine
           ]
 
 main :: forall e. Eff (console :: CONSOLE, dom:: DOM | e) Unit
