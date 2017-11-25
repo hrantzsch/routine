@@ -2,7 +2,7 @@ module Main where
 
 import Prelude
 
-import Components (routineForm)
+import Components (routineForm, routineTable)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Except (runExcept)
@@ -16,9 +16,8 @@ import Data.Either (Either(..))
 import Data.Foldable (for_)
 import Data.Foreign (ForeignError, readString, toForeign)
 import Data.Foreign.Index (index)
-import Data.Int (fromString)
 import Data.List.NonEmpty (NonEmptyList)
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromJust)
 import Data.Routine (Errors, Routine(..), validateRoutine)
 import Partial.Unsafe (unsafePartial)
 import React (ReactClass, ReadWrite, ReactState, Event, ReactThis, createFactory, readState, spec, createClass, writeState)
@@ -77,14 +76,14 @@ routineList = createClass $ spec initialState \ctx -> do
       updateStart s = Routine $ routine { start = s }
 
   pure $
-    D.div [ P.className "container" ]
-          [ D.div [ P.className "row" ]
-                  (renderValidationErrors errors)
-          , routineForm routine
-              (updateAppState ctx updateTitle)
-              (updateAppState ctx updatePeriod)
-              (updateAppState ctx updateStart)
-          ]
+      routineTable routine
+          {-- [ D.div [ P.className "row" ] --}
+          {--         (renderValidationErrors errors) --}
+          {-- , routineForm routine --}
+          {--     (updateAppState ctx updateTitle) --}
+          {--     (updateAppState ctx updatePeriod) --}
+          {--     (updateAppState ctx updateStart) --}
+          {-- ] --}
 
 main :: forall e. Eff (console :: CONSOLE, dom:: DOM | e) Unit
 main = void do

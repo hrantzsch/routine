@@ -3,7 +3,7 @@ module Components where
 import Prelude
 import Control.Monad.Eff (Eff)
 
-import React (Event, EventHandlerContext, ReactElement, ReactProps, ReactRefs, ReactState, Read, Write)
+import React (Event, ReactElement, ReactProps, ReactRefs, ReactState, Read, Write)
 import React.DOM as D
 import React.DOM.Props as P
 
@@ -31,6 +31,35 @@ formField name hint value update =
                             ] []
                   ]
           ]
+
+routineTable routine =
+    D.div [ P.className "container" ]
+        [ D.table [ P.className "table table-sm" ]
+            [ D.thead' [ D.tr'
+                [ D.th' [ D.text "title" ]
+                , D.th' [ D.text "period" ]
+                , D.th' [ D.text "start" ]
+                , D.th' [ D.text "code" ]
+                ]
+            ]
+            , D.tbody'
+                [ D.tr'
+                    [ D.td' [ D.text routine.title ]
+                    , D.td' [ D.text routine.period ]
+                    , D.td' [ D.text routine.start ]
+                    , D.td' [ D.text routine.code ]
+                    ]
+                ]
+            , D.tbody'
+                [ D.tr'
+                    [ D.td' [ D.text routine.title ]
+                    , D.td' [ D.text routine.period ]
+                    , D.td' [ D.text routine.start ]
+                    , D.td' [ D.text routine.code ]
+                    ]
+                ]
+            ]
+        ]
 
 routineForm routine onTitleChanged onPeriodChanged onStartChanged =
     D.div [ P.className "row" ]
