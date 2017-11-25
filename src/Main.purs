@@ -23,7 +23,7 @@ import React.DOM as D
 import React.DOM.Props as P
 import ReactDOM (render)
 
-import Components (renderRoutineList, renderValidationErrors)
+import Components (renderRoutineForm, renderRoutineList, renderValidationErrors)
 import Data.Routine (Errors, Routine(..), routine, validateRoutine)
 
 routine1 :: Routine
@@ -75,7 +75,8 @@ routineList = createClass $ spec initialState \ctx -> do
     pure $
         D.div [ P.className "column" ]
           [ renderValidationErrors errors
-          , renderRoutineList routines newRoutine
+          , renderRoutineForm newRoutine
+          , renderRoutineList routines
           ]
 
 main :: forall e. Eff (console :: CONSOLE, dom:: DOM | e) Unit
