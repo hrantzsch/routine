@@ -9,22 +9,22 @@ import React.DOM.Props as P
 
 import Data.Routine (Routine(..))
 
-renderRoutineForm :: forall eff.
-   Routine
-   -> ((String -> Routine) -> Event -> Eff ( props :: ReactProps
-                                           , refs :: ReactRefs ( read :: Read )
-                                           , state :: ReactState ReadWrite
-                                           | eff) Unit)
-   -> ReactElement
-renderRoutineForm routine updateForm =
+type StateUpdate = forall eff. Event -> Eff ( props :: ReactProps
+                                            , refs :: ReactRefs ( read :: Read )
+                                            , state :: ReactState ReadWrite
+                                            | eff) Unit
+
+renderRoutineForm ::  Routine -> ((String -> Routine) -> StateUpdate) -> StateUpdate -> ReactElement
+renderRoutineForm routine updateForm submitForm =
     D.div [ P.className "container" ] [ routineForm routine ]
 
     where
         routineForm (Routine r) =
-            D.form [ P.className "form-row" ]
+            D.form [ P.className "form-row" , P.onSubmit submitForm ]
             [ routineInput r.title  "title"  (\s -> Routine $ r { title  = s } )
             , routineInput r.period "period" (\s -> Routine $ r { period = s } )
             , routineInput r.start  "start"  (\s -> Routine $ r { start  = s } )
+            , D.button [ P.className "btn-light", P._type "submit" ] [ D.text "+" ]
             ]
 
         routineInput value placeholder updateField = D.div [ P.className "col" ]

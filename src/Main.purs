@@ -2,6 +2,7 @@ module Main where
 
 import Prelude
 
+import Components (renderRoutineForm, renderRoutineList, renderValidationErrors)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Except (runExcept)
@@ -17,14 +18,12 @@ import Data.Foreign (ForeignError, readString, toForeign)
 import Data.Foreign.Index (index)
 import Data.List.NonEmpty (NonEmptyList)
 import Data.Maybe (fromJust)
+import Data.Routine (Errors, Routine(..), routine, validateRoutine)
 import Partial.Unsafe (unsafePartial)
-import React (ReactClass, ReadWrite, ReactState, Event, ReactThis, createFactory, readState, spec, createClass, writeState)
+import React (Event, ReactClass, ReactState, ReactThis, ReadWrite, createClass, createFactory, readState, spec, writeState)
 import React.DOM as D
 import React.DOM.Props as P
 import ReactDOM (render)
-
-import Components (renderRoutineForm, renderRoutineList, renderValidationErrors)
-import Data.Routine (Errors, Routine(..), routine, validateRoutine)
 
 routine1 :: Routine
 routine1 = Routine { title: "Kaffee trinken", period: "3", start: "heute", code: "AABBCC" }
@@ -57,7 +56,7 @@ updateNewRoutineForm :: forall props eff
    . ReactThis props AppState
   -> (String -> Routine)
   -> Event
-  -> Eff ( console :: CONSOLE , state :: ReactState ReadWrite | eff) Unit
+  -> Eff ( state :: ReactState ReadWrite | eff) Unit
 updateNewRoutineForm ctx update event =
   for_ (valueOf event) \value -> do
     let formData = update value
@@ -67,13 +66,26 @@ updateNewRoutineForm ctx update event =
       Left errors -> writeState ctx $ AppState { routines: routines, newRoutine: formData, errors: errors }
       Right _     -> writeState ctx $ AppState { routines: routines, newRoutine: formData, errors: [] }
 
+submitNewRoutineForm :: forall props eff
+   . ReactThis props AppState
+  -> Event
+  -> Eff ( state :: ReactState ReadWrite | eff) Unit
+submitNewRoutineForm ctx event = void do
+    AppState { routines: routines, newRoutine: formData } <- readState ctx
+
+    case validateRoutine formData of
+      Left errors -> writeState ctx $
+          AppState { routines: routines, newRoutine: formData, errors: errors }
+      Right _     -> writeState ctx $
+          AppState { routines: [formData] <> routines, newRoutine: emptyRoutine, errors: [] }
+
 routineList :: forall props. ReactClass props
 routineList = createClass $ spec initialState \ctx -> do
     AppState { routines: routines, newRoutine: newRoutine, errors } <- readState ctx
 
     pure $
         D.div [ P.className "column" ]
-          [ renderRoutineForm newRoutine (updateNewRoutineForm ctx)
+          [ renderRoutineForm newRoutine (updateNewRoutineForm ctx) (submitNewRoutineForm ctx)
           , renderValidationErrors errors
           , renderRoutineList routines
           ]
