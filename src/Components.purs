@@ -9,29 +9,37 @@ import React.DOM.Props as P
 
 import Data.Routine (Routine(..))
 
-type StateUpdate = forall eff. Event -> Eff ( props :: ReactProps
-                                            , refs :: ReactRefs ( read :: Read )
-                                            , state :: ReactState ReadWrite
-                                            | eff) Unit
+type StateEffect = forall eff. Eff ( props :: ReactProps
+                                   , refs :: ReactRefs ( read :: Read )
+                                   , state :: ReactState ReadWrite
+                                   | eff) Unit
 
-renderRoutineForm ::  Routine -> ((String -> Routine) -> StateUpdate) -> StateUpdate -> ReactElement
+renderRoutineForm :: Routine
+                     -> ((String -> Routine) -> Event -> StateEffect)
+                     -> StateEffect
+                     -> ReactElement
 renderRoutineForm routine updateForm submitForm =
     D.div [ P.className "container" ] [ routineForm routine ]
-
     where
         routineForm (Routine r) =
-            D.form [ P.className "form-row" , P.onSubmit submitForm ]
+            D.div [ P.className "form-row" ]
             [ routineInput r.title  "title"  (\s -> Routine $ r { title  = s } )
             , routineInput r.period "period" (\s -> Routine $ r { period = s } )
             , routineInput r.start  "start"  (\s -> Routine $ r { start  = s } )
-            , D.button [ P.className "btn-light", P._type "submit" ] [ D.text "+" ]
+            , D.button [ P.className "btn-light", P.onClick (const submitForm) ] [ D.text "+" ]
             ]
 
         routineInput value placeholder updateField = D.div [ P.className "col" ]
-            [ D.input [ P._type "text", P.className "form-control",
-                        P.placeholder placeholder, P.onChange $ updateForm updateField ]
+            [ D.input [ P.className "form-control"
+                      , P.placeholder placeholder
+                      , P.value value
+                      , P.onKeyUp submitOnReturnKey
+                      , P.onChange $ updateForm updateField ]
               []
             ]
+
+        submitOnReturnKey { keyCode: 13 } = submitForm
+        submitOnReturnKey { keyCode: _  } = pure unit
 
 renderRoutineList :: Array Routine -> ReactElement
 renderRoutineList routines =
@@ -44,9 +52,7 @@ renderRoutineList routines =
             , D.tbody' $ map renderRoutine routines
             ]
         ]
-
     where
-
         renderRoutine (Routine r) = D.tr' [ D.td' [ D.text r.title ]
                                           , D.td' [ D.text r.period ]
                                           , D.td' [ D.text r.start ]

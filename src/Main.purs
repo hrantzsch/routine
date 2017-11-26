@@ -68,9 +68,8 @@ updateNewRoutineForm ctx update event =
 
 submitNewRoutineForm :: forall props eff
    . ReactThis props AppState
-  -> Event
   -> Eff ( state :: ReactState ReadWrite | eff) Unit
-submitNewRoutineForm ctx event = void do
+submitNewRoutineForm ctx = void do
     AppState { routines: routines, newRoutine: formData } <- readState ctx
 
     case validateRoutine formData of
