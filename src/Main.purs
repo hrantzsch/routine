@@ -53,20 +53,19 @@ valueOf e = runExcept do
   value <- index target "value"
   readString value
 
-updateAppState :: forall props eff
+updateNewRoutineForm :: forall props eff
    . ReactThis props AppState
   -> (String -> Routine)
   -> Event
   -> Eff ( console :: CONSOLE , state :: ReactState ReadWrite | eff) Unit
-updateAppState ctx update e =
-  for_ (valueOf e) \s -> do
-    AppState { routines: rs, newRoutine: nr, errors: er } <- readState ctx
-    let newRoutine = update s
+updateNewRoutineForm ctx update event =
+  for_ (valueOf event) \value -> do
+    let formData = update value
+    AppState { routines: routines } <- readState ctx
 
-    log "Running validators"
-    case validateRoutine newRoutine of
-      Left errors -> writeState ctx $ AppState { routines: rs, newRoutine: newRoutine, errors: errors }
-      Right _     -> writeState ctx $ AppState { routines: rs, newRoutine: newRoutine, errors: [] }
+    case validateRoutine formData of
+      Left errors -> writeState ctx $ AppState { routines: routines, newRoutine: formData, errors: errors }
+      Right _     -> writeState ctx $ AppState { routines: routines, newRoutine: formData, errors: [] }
 
 routineList :: forall props. ReactClass props
 routineList = createClass $ spec initialState \ctx -> do
@@ -74,8 +73,8 @@ routineList = createClass $ spec initialState \ctx -> do
 
     pure $
         D.div [ P.className "column" ]
-          [ renderValidationErrors errors
-          , renderRoutineForm newRoutine
+          [ renderRoutineForm newRoutine (updateNewRoutineForm ctx)
+          , renderValidationErrors errors
           , renderRoutineList routines
           ]
 

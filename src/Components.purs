@@ -1,29 +1,36 @@
 module Components where
 
 import Prelude
+import Control.Monad.Eff (Eff)
 
-import React (ReactElement)
+import React (Event, ReactElement, ReactProps, ReactRefs, ReactState, Read, ReadWrite)
 import React.DOM as D
 import React.DOM.Props as P
 
 import Data.Routine (Routine(..))
 
-renderRoutineForm :: Routine -> ReactElement
-renderRoutineForm routine =
+renderRoutineForm :: forall eff.
+   Routine
+   -> ((String -> Routine) -> Event -> Eff ( props :: ReactProps
+                                           , refs :: ReactRefs ( read :: Read )
+                                           , state :: ReactState ReadWrite
+                                           | eff) Unit)
+   -> ReactElement
+renderRoutineForm routine updateForm =
     D.div [ P.className "container" ] [ routineForm routine ]
 
     where
-        routineInput value placeholder = D.div [ P.className "col" ]
-            [ D.input [ P._type "text", P.className "form-control",
-                        P.placeholder placeholder]
-              []
-            ]
-
         routineForm (Routine r) =
             D.form [ P.className "form-row" ]
-            [ routineInput r.title "title"
-            , routineInput r.period "period"
-            , routineInput r.start "start"
+            [ routineInput r.title  "title"  (\s -> Routine $ r { title  = s } )
+            , routineInput r.period "period" (\s -> Routine $ r { period = s } )
+            , routineInput r.start  "start"  (\s -> Routine $ r { start  = s } )
+            ]
+
+        routineInput value placeholder updateField = D.div [ P.className "col" ]
+            [ D.input [ P._type "text", P.className "form-control",
+                        P.placeholder placeholder, P.onChange $ updateForm updateField ]
+              []
             ]
 
 renderRoutineList :: Array Routine -> ReactElement
